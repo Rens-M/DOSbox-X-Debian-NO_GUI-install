@@ -158,6 +158,9 @@ sudo service smbd restart
 ```
 Now you can access the drive via network share with the credentials you have given samba
 
+## Reboot and enjoy.
+Rebooting the system now should autologin and then start DOSBox-X.  Configure DOSBox-X to your liking in normal manner.
+
 
 
 
