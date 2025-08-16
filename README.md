@@ -48,6 +48,32 @@ I instaled dosbox-x using the [build](https://github.com/joncampbell123/dosbox-x
 There are two libraries quoted that showed non-available for me (`libavdevice58` & `libavcodec-extra58`) I went ahead without them. and I used the `./build-debug-sdl2`option.
 After `sudo make install`was completed I removed the git cloned directory.
 
+## Optional Automount CDROM drive
+> I spend the last few days getting this to work, which was a pain.... combining a couple of sollution suggestions I found I made it work. (I had to combine them each on their own did not seem to work for me.)
+After install from scratch debian added my cdrom drive to fstab as follows yours may be different.
+```
+/dev/sr0        /media/cdrom0   udf,iso9660 user,noauto     0       0
+```
+with this as the starting point:
+Make a udev rule: `sudo nano /etc/udev/rules.d/99-local-cdrom.rules`
+Add the following (ammend for entries as it is/was pupulated in your fstab)
+```
+KERNEL=="sr0", SUBSYSTEM=="block", ENV{ID_FS_TYPE}=="?*", ACTION=="change", RUN+="/usr/bin/systemd-mount --no-block --automount=yes --collect $devnode /media/cdrom0"
+```
+Create a systemd-udevd override: `sudo systemctl edit systemd-udevd`
+add in the designated space
+```
+[Service]
+MountFlags=shared
+```
+then installing [udev-media-automount](https://github.com/Ferk/udev-media-automount) per the instructions.
+and commenting out the cdrom line from fstab (per documents of udev-media-automount having it in the fstab with no-auto prevents this from autoloading) following up with 
+`sudo systemctl daemon-reload && sudo service systemd-udevd --full-restart`
+
+> now when inserting a disk in the drive it gets automatically mounted for me at /media/cdrom0  and I can use that location for mounting in DOSBox without havaing to drop out of dosbox and manually mount the disc.
+
+
+
 ## Running DOSBox-X
 > From here I could run `dosbox-x`but doing so (for me at least on every try including trying on ubuntu server) gives no accerss to keyboard and mouse, so I have to run `sudo dosbox-x` this works well it just places the config file then in `/root/.config/dosbox-x/dosbox-x-[version].conf unless using the -conf pointer in the command line. 
 
